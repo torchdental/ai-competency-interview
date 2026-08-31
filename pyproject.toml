@@ -1,0 +1,36 @@
+[project]
+name = "ai-competency-interview"
+version = "0.1.0"
+description = "Claim processing service"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.136.0",
+    "uvicorn>=0.37.0",
+    "sqlalchemy>=2.0.43",
+    "aiosqlite>=0.21.0",
+    "greenlet>=3.2.4",
+    "pydantic>=2.11.0",
+    "pydantic-settings>=2.11.0",
+    "httpx>=0.28.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+    "ruff>=0.14.4",
+    "httpx>=0.28.1",
+]
+
+[tool.ruff]
+src = ["src"]
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
