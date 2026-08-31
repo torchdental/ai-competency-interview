@@ -1,0 +1,52 @@
+{
+  "D0120": {
+    "description": "Periodic oral evaluation",
+    "category": "diagnostic",
+    "max_amount": 75.00
+  },
+  "D0140": {
+    "description": "Limited oral evaluation",
+    "category": "diagnostic",
+    "max_amount": 95.00
+  },
+  "D0210": {
+    "description": "Complete series of radiographic images",
+    "category": "diagnostic",
+    "max_amount": 180.00
+  },
+  "D1110": {
+    "description": "Prophylaxis - adult",
+    "category": "preventive",
+    "max_amount": 120.00
+  },
+  "D1120": {
+    "description": "Prophylaxis - child",
+    "category": "preventive",
+    "max_amount": 85.00
+  },
+  "D2140": {
+    "description": "Amalgam restoration, one surface, primary or permanent",
+    "category": "restorative",
+    "max_amount": 175.00
+  },
+  "D2330": {
+    "description": "Resin-based composite, one surface, anterior",
+    "category": "restorative",
+    "max_amount": 195.00
+  },
+  "D7140": {
+    "description": "Extraction, erupted tooth or exposed root",
+    "category": "oral_surgery",
+    "max_amount": 200.00
+  },
+  "D7210": {
+    "description": "Surgical extraction of erupted tooth",
+    "category": "oral_surgery",
+    "max_amount": 350.00
+  },
+  "D8080": {
+    "description": "Comprehensive orthodontic treatment, adolescent",
+    "category": "orthodontics",
+    "max_amount": 5500.00
+  }
+}
