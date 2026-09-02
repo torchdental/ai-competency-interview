@@ -28,7 +28,7 @@ export function SubmitClaim() {
         body: JSON.stringify({
           practice_id: "practice-1",
           patient_name: patientName,
-          payer_id: payerId,
+          payer_id: parseInt(payerId, 10),
           procedures: procedures.map((p) => ({
             code: p.code,
             amount: parseFloat(p.amount),
@@ -62,6 +62,10 @@ export function SubmitClaim() {
       updated[index] = { ...updated[index], [field]: value };
       return updated;
     });
+  };
+
+  const removeProcedure = (index: number) => {
+    setProcedures((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -102,6 +106,11 @@ export function SubmitClaim() {
                 value={proc.amount}
                 onChange={(e) => updateProcedure(i, "amount", e.target.value)}
               />
+              {procedures.length > 1 && (
+                <button type="button" onClick={() => removeProcedure(i)}>
+                  Remove
+                </button>
+              )}
             </div>
           ))}
           <button

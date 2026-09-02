@@ -17,7 +17,7 @@ def test_valid_procedure_code(validation_service: ValidationService) -> None:
 def test_validate_claim_within_limits(validation_service: ValidationService) -> None:
     errors = validation_service.validate_claim([
         {"code": "D0120", "amount": 50.00},
-        {"code": "D1110", "amount": 100.00},
+        {"code": "D0140", "amount": 80.00},
     ])
     assert errors == []
 

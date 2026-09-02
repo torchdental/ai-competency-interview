@@ -14,21 +14,6 @@
     "category": "diagnostic",
     "max_amount": 180.00
   },
-  "D1110": {
-    "description": "Prophylaxis - adult",
-    "category": "preventive",
-    "max_amount": 120.00
-  },
-  "D1120": {
-    "description": "Prophylaxis - child",
-    "category": "preventive",
-    "max_amount": 85.00
-  },
-  "D2140": {
-    "description": "Amalgam restoration, one surface, primary or permanent",
-    "category": "restorative",
-    "max_amount": 175.00
-  },
   "D2330": {
     "description": "Resin-based composite, one surface, anterior",
     "category": "restorative",

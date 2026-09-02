@@ -1,16 +1,16 @@
 export interface Procedure {
-  id: string;
-  claim_id: string;
+  id: number;
+  claim_id: number;
   code: string;
   description: string;
   amount: number;
 }
 
 export interface Claim {
-  id: string;
+  id: number;
   practice_id: string;
   patient_name: string;
-  payer_id: string;
+  payer_id: number;
   status: "pending" | "validated" | "rejected" | "accepted";
   total_amount: number;
   created_at: string;

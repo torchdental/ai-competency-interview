@@ -1,6 +1,4 @@
-import uuid
-
-from sqlalchemy import String
+from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base
@@ -9,7 +7,7 @@ from src.models.base import Base
 class Payer(Base):
     __tablename__ = "payers"
 
-    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     payer_code: Mapped[str] = mapped_column(String, nullable=False, unique=True)
 

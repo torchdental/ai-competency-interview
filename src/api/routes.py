@@ -24,7 +24,7 @@ class ProcedureInput(BaseModel):
 class ClaimCreateRequest(BaseModel):
     practice_id: str
     patient_name: str
-    payer_id: str
+    payer_id: int
     procedures: list[ProcedureInput]
     total_amount: float
 
@@ -44,7 +44,7 @@ async def list_claims(
 
 @router.get("/claims/{claim_id}")
 async def get_claim(
-    claim_id: str,
+    claim_id: int,
     practice_id: str,
     service: ClaimService = Depends(get_claim_service),
 ):
@@ -76,7 +76,7 @@ async def create_claim(
 
 @router.patch("/claims/{claim_id}/status")
 async def update_claim_status(
-    claim_id: str,
+    claim_id: int,
     practice_id: str,
     data: ClaimStatusUpdateRequest,
     service: ClaimService = Depends(get_claim_service),
@@ -102,7 +102,7 @@ async def update_claim_status(
 
 @router.delete("/claims/{claim_id}")
 async def delete_claim(
-    claim_id: str,
+    claim_id: int,
     practice_id: str,
     service: ClaimService = Depends(get_claim_service),
 ):
