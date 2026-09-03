@@ -56,3 +56,36 @@ def test_unrecognized_code_does_not_mask_other_errors(
         {"code": "D0120", "amount": 200.00},
     ])
     assert len(errors) == 2
+
+
+@pytest.mark.parametrize(
+    ("code", "max_amount"),
+    [
+        ("D1110", 110.00),
+        ("D1120", 85.00),
+        ("D2140", 165.00),
+        ("D2150", 205.00),
+    ],
+)
+def test_new_codes_allow_amount_up_to_max(
+    validation_service: ValidationService, code: str, max_amount: float
+) -> None:
+    assert validation_service.validate_claim([{"code": code, "amount": max_amount}]) == []
+
+
+@pytest.mark.parametrize(
+    ("code", "max_amount"),
+    [
+        ("D1110", 110.00),
+        ("D1120", 85.00),
+        ("D2140", 165.00),
+        ("D2150", 205.00),
+    ],
+)
+def test_new_codes_reject_amount_over_max(
+    validation_service: ValidationService, code: str, max_amount: float
+) -> None:
+    errors = validation_service.validate_claim([{"code": code, "amount": max_amount + 0.01}])
+    assert len(errors) == 1
+    assert code in errors[0]
+    assert "exceeds maximum" in errors[0]
