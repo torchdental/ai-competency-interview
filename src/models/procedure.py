@@ -1,4 +1,4 @@
-from sqlalchemy import Float, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base
@@ -12,6 +12,9 @@ class Procedure(Base):
     code: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
     amount: Mapped[float] = mapped_column(Float, nullable=False)
+    voided: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="0"
+    )
 
     claim: Mapped["Claim"] = relationship("Claim", back_populates="procedures")
 
@@ -22,4 +25,5 @@ class Procedure(Base):
             "code": self.code,
             "description": self.description,
             "amount": self.amount,
+            "voided": self.voided,
         }
