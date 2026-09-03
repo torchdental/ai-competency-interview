@@ -17,7 +17,7 @@ VALID_TRANSITIONS: dict[ClaimStatus, list[ClaimStatus]] = {
 
 
 def _as_naive_utc(value: datetime) -> datetime:
-    """Convert an aware datetime to naive UTC to match the stored timestamps.
+    """Convert an aware datetime to naive UTC to match the stored timestamps
 
     created_at is written by the database without a timezone, and SQLAlchemy drops
     tzinfo on bind, so an offset-bearing bound would otherwise compare as wall clock.
@@ -39,7 +39,7 @@ class ClaimService:
         submitted_after: datetime | None = None,
         submitted_before: datetime | None = None,
     ) -> list[Claim]:
-        """List a practice's claims, optionally narrowed by status and creation date.
+        """List a practice's claims, optionally narrowed by status and creation date
 
         Both date bounds are inclusive.
         """
@@ -114,8 +114,8 @@ class ClaimService:
         claim.status = new_status
         await self.session.commit()
 
-        # Re-select rather than refresh: the commit expires the instance, and callers
-        # serialize the procedures, which cannot be lazy-loaded from async code.
+        # Re-select rather than refresh: refresh leaves procedures unloaded, and callers
+        # serialize them, which lazy-loading cannot do under async.
         result = await self.session.execute(
             select(Claim)
             .where(Claim.id == claim.id)
