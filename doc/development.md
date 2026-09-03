@@ -68,8 +68,8 @@ uv run python scripts/reset.py    # delete claims.db, then seed
 `seed.py` creates three payers (Delta Dental, Cigna, Aetna) and five claims for
 `practice-1`, one in each status plus a second `pending` — enough to exercise every badge and
 every status action in the UI. Unlike the API, it computes `total_amount` from the procedures it
-attaches. It is not idempotent: running it twice duplicates the claims and fails on the unique
-`payer_code`, so use `reset.py` to start over.
+attaches. It is not idempotent: a second run fails on the unique `payer_code` while flushing the
+payers, before any claim is written, so use `reset.py` to start over.
 
 There is no migration tool. `init_db()` only issues `create_all`, which creates missing tables
 and never alters existing ones — so a change to a column requires `reset.py`, not just a restart.

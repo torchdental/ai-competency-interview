@@ -63,8 +63,8 @@ therefore raises `KeyError`, which no handler catches — the request fails with
 Server Error` rather than a `422` naming the bad code.
 
 This is the one validation outcome the API does not report usefully. ARCHITECTURE.md describes
-an unrecognized code as a validation failure that rejects the claim, and the README's `/docs`
-contract implies a `422`; neither matches the current behavior.
+an unrecognized code as a validation failure that rejects the claim, which does not match the
+current behavior.
 
 ## Payer-specific codes
 
