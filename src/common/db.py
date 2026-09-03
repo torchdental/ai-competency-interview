@@ -13,6 +13,9 @@ async def get_session() -> AsyncSession:  # type: ignore[return]
 
 async def init_db() -> None:
     from src.models.base import Base  # noqa: PLC0415
+    import src.models.claim  # noqa: PLC0415, F401
+    import src.models.payer  # noqa: PLC0415, F401
+    import src.models.procedure  # noqa: PLC0415, F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
