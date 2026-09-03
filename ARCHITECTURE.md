@@ -37,10 +37,10 @@ The central entity. Scoped to a `practice_id` — all queries filter by this fie
 
 | Field | Type | Notes |
 |---|---|---|
-| `id` | UUID string | Primary key |
+| `id` | integer | Primary key |
 | `practice_id` | string | Tenant identifier — all queries are scoped to this |
 | `patientName` | string | |
-| `payer_id` | UUID string | FK → Payer |
+| `payer_id` | integer | FK → Payer |
 | `status` | ClaimStatus | Current lifecycle state |
 | `totalAmount` | float | Sum of procedure amounts |
 | `created_at` | datetime | Set on insert |
@@ -53,8 +53,8 @@ A line item on a claim. Each procedure maps to a CDT code.
 
 | Field | Type | Notes |
 |---|---|---|
-| `id` | UUID string | Primary key |
-| `claimId` | UUID string | FK → Claim |
+| `id` | integer | Primary key |
+| `claimId` | integer | FK → Claim |
 | `code` | string | CDT procedure code (e.g. `D0120`) |
 | `description` | string | |
 | `amount` | float | Billed amount for this procedure |
@@ -65,7 +65,7 @@ An insurance company. Used to associate a claim with the payer responsible for a
 
 | Field | Type | Notes |
 |---|---|---|
-| `id` | UUID string | Primary key |
+| `id` | integer | Primary key |
 | `name` | string | Display name |
 | `payerCode` | string | Unique short code identifier |
 

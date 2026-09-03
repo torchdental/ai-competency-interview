@@ -27,7 +27,7 @@ class ClaimService:
         )
         return list(result.scalars().all())
 
-    async def get_claim(self, claim_id: str, practice_id: str) -> Claim | None:
+    async def get_claim(self, claim_id: int, practice_id: str) -> Claim | None:
         result = await self.session.execute(
             select(Claim)
             .where(Claim.id == claim_id, Claim.practice_id == practice_id)
@@ -35,7 +35,7 @@ class ClaimService:
         )
         return result.scalar_one_or_none()
 
-    async def get_claim_unrestricted(self, claim_id: str) -> Claim | None:
+    async def get_claim_unrestricted(self, claim_id: int) -> Claim | None:
         """Fetch a claim by ID without practice scoping. Used internally for authorization checks."""
         result = await self.session.execute(
             select(Claim).where(Claim.id == claim_id)
@@ -46,7 +46,7 @@ class ClaimService:
         self,
         practice_id: str,
         patient_name: str,
-        payer_id: str,
+        payer_id: int,
         procedures: list[dict],
         total_amount: float,
     ) -> Claim:
