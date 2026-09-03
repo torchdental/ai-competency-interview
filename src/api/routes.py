@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.common.db import get_session
 from src.common.exceptions import ClaimValidationError, InvalidStatusTransitionError
 from src.models.claim import ClaimStatus
+from src.models.payer import Payer
 from src.services.claim_service import ClaimService
 from src.services.validation_service import ValidationService
 
@@ -59,8 +60,17 @@ async def create_claim(
     data: ClaimCreateRequest,
     service: ClaimService = Depends(get_claim_service),
 ):
+    payer = await service.session.get(Payer, data.payer_id)
+    if payer is None:
+        raise HTTPException(
+            status_code=422,
+            detail={"validation_errors": [f"Payer {data.payer_id} not found"]},
+        )
+
     validation_service = ValidationService()
-    errors = validation_service.validate_claim([p.model_dump() for p in data.procedures])
+    errors = validation_service.validate_claim(
+        [p.model_dump() for p in data.procedures], payer_code=payer.payer_code
+    )
     if errors:
         raise HTTPException(status_code=422, detail={"validation_errors": errors})
 

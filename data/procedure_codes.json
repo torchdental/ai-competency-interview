@@ -39,6 +39,18 @@
     "category": "restorative",
     "max_amount": 195.00
   },
+  "D3310": {
+    "description": "Endodontic therapy, anterior tooth",
+    "category": "endodontics",
+    "max_amount": 750.00,
+    "allowed_payers": ["DD001"]
+  },
+  "D3330": {
+    "description": "Endodontic therapy, molar",
+    "category": "endodontics",
+    "max_amount": 1100.00,
+    "allowed_payers": ["CIG001"]
+  },
   "D7140": {
     "description": "Extraction, erupted tooth or exposed root",
     "category": "oral_surgery",
