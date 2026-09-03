@@ -1,5 +1,4 @@
 import pytest
-
 from src.common.exceptions import InvalidStatusTransitionError
 from src.models.claim import ClaimStatus
 from src.models.payer import Payer

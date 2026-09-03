@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,9 +38,17 @@ class ClaimStatusUpdateRequest(BaseModel):
 @router.get("/claims")
 async def list_claims(
     practice_id: str,
+    status: ClaimStatus | None = None,
+    submitted_after: datetime | None = None,
+    submitted_before: datetime | None = None,
     service: ClaimService = Depends(get_claim_service),
 ):
-    claims = await service.get_claims(practice_id)
+    claims = await service.get_claims(
+        practice_id,
+        status=status,
+        submitted_after=submitted_after,
+        submitted_before=submitted_before,
+    )
     return {"claims": [c.to_dict() for c in claims], "total": len(claims)}
 
 
