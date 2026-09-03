@@ -1,5 +1,4 @@
 import pytest
-
 from src.services.validation_service import ValidationService
 
 
@@ -38,3 +37,22 @@ def test_validate_claim_multiple_procedures(validation_service: ValidationServic
     ])
     assert len(errors) == 1
     assert "D7210" in errors[0]
+
+
+def test_validate_claim_unrecognized_code(validation_service: ValidationService) -> None:
+    errors = validation_service.validate_claim([
+        {"code": "D9999", "amount": 50.00},
+    ])
+    assert len(errors) == 1
+    assert "D9999" in errors[0]
+    assert "unrecognized" in errors[0]
+
+
+def test_unrecognized_code_does_not_mask_other_errors(
+    validation_service: ValidationService,
+) -> None:
+    errors = validation_service.validate_claim([
+        {"code": "D9999", "amount": 50.00},
+        {"code": "D0120", "amount": 200.00},
+    ])
+    assert len(errors) == 2

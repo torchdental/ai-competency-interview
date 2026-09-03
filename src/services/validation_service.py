@@ -8,15 +8,17 @@ class ValidationService:
         with open(PROCEDURE_CODES_PATH) as f:
             self._codes: dict = json.load(f)
 
-    def validate_procedure_code(self, code: str) -> dict:
-        # Codes are not payer-specific — all payers share the same allowed set.
-        # Feature gap: should accept payer_id and validate against payer-specific codes.
-        return self._codes[code]
+    def validate_procedure_code(self, code: str) -> dict | None:
+        """Return the reference entry for a code, or None if it is not in the allowed set"""
+        return self._codes.get(code)
 
     def validate_claim(self, procedures: list[dict]) -> list[str]:
         errors = []
         for proc in procedures:
             code_info = self.validate_procedure_code(proc["code"])
+            if code_info is None:
+                errors.append(f"Procedure {proc['code']}: unrecognized code")
+                continue
             if proc["amount"] > code_info["max_amount"]:
                 errors.append(
                     f"Procedure {proc['code']}: amount ${proc['amount']:.2f} "
