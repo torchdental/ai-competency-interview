@@ -8,7 +8,7 @@ from src.models.procedure import Procedure
 
 VALID_TRANSITIONS: dict[ClaimStatus, list[ClaimStatus]] = {
     ClaimStatus.PENDING: [ClaimStatus.VALIDATED, ClaimStatus.REJECTED],
-    ClaimStatus.VALIDATED: [ClaimStatus.ACCEPTED, ClaimStatus.REJECTED],
+    ClaimStatus.VALIDATED: [ClaimStatus.ACCEPTED, ClaimStatus.REJECTED, ClaimStatus.PENDING],
     ClaimStatus.REJECTED: [],
     ClaimStatus.ACCEPTED: [],
 }
@@ -84,8 +84,15 @@ class ClaimService:
             raise InvalidStatusTransitionError(claim.status.value, new_status.value)
         claim.status = new_status
         await self.session.commit()
-        await self.session.refresh(claim)
-        return claim
+
+        # Re-select rather than refresh: the commit expires the instance, and callers
+        # serialize the procedures, which cannot be lazy-loaded from async code.
+        result = await self.session.execute(
+            select(Claim)
+            .where(Claim.id == claim.id)
+            .options(selectinload(Claim.procedures))
+        )
+        return result.scalar_one()
 
     async def delete_claim(self, claim: Claim) -> None:
         await self.session.delete(claim)

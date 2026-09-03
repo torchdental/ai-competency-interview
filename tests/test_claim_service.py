@@ -75,3 +75,35 @@ async def test_get_claim_returns_none_for_wrong_practice(
     )
     result = await claim_service.get_claim(claim.id, "practice-2")
     assert result is None
+
+
+async def test_validated_claim_returns_to_pending(
+    claim_service: ClaimService, payer: Payer
+) -> None:
+    claim = await claim_service.create_claim(
+        practice_id="practice-1",
+        patient_name="Jane Doe",
+        payer_id=payer.id,
+        procedures=[],
+        total_amount=0.00,
+    )
+    validated = await claim_service.transition_status(claim, ClaimStatus.VALIDATED)
+    returned = await claim_service.transition_status(validated, ClaimStatus.PENDING)
+    assert returned.status == ClaimStatus.PENDING
+
+
+async def test_terminal_states_allow_no_transitions(
+    claim_service: ClaimService, payer: Payer
+) -> None:
+    for terminal in (ClaimStatus.ACCEPTED, ClaimStatus.REJECTED):
+        claim = await claim_service.create_claim(
+            practice_id="practice-1",
+            patient_name="Jane Doe",
+            payer_id=payer.id,
+            procedures=[],
+            total_amount=0.00,
+        )
+        claim.status = terminal
+        await claim_service.session.commit()
+        with pytest.raises(InvalidStatusTransitionError):
+            await claim_service.transition_status(claim, ClaimStatus.PENDING)
