@@ -2,6 +2,8 @@
 
 A backend service for managing dental insurance claims through their processing lifecycle. Claims are submitted with procedure codes, validated against allowed amounts, and transitioned through review states before reaching a terminal status.
 
+Reference documentation lives in [`doc/`](doc/index.md) — API, data model, claim lifecycle, validation, frontend, and development workflow.
+
 ---
 
 ## Prerequisites
