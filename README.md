@@ -108,4 +108,4 @@ uv run pytest
 | `PATCH` | `/api/procedures/{id}` | Void a procedure (`{"voided": true}`) |
 | `POST` | `/api/procedures/{id}/restore` | Restore a voided procedure |
 
-All endpoints require a `practice_id` query parameter for scoping. See `/docs` for full request/response shapes.
+All endpoints require a `practice_id` query parameter for scoping. See `http://localhost:8000/docs` for full request/response shapes.
