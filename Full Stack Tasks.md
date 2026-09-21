@@ -16,16 +16,15 @@ Use whatever tools you'd normally use. The team expects you to move deliberately
 
 **Implement procedure voiding** The team wants users to be able to void individual procedures on a claim from the detail view - marking a line item as inactive without deleting the claim. Implement it end to end.
 
+**Implement procedure restore** Voided procedures need a way back. Add a restore action to the UI for voided procedures and wire it to the backend. This is the natural companion to voiding.
+
 **Implement the VALIDATED → PENDING return path** Per the documented business rules, a validated claim can be returned to PENDING if the payer requests additional documentation. This transition is documented but has not been implemented yet. It should be triggerable via the existing status PATCH endpoint.
 
 **Add claim filtering** Users want to filter the claims list by status. A date range filter would also be useful but is lower priority. Keep filter state in the URL so links are shareable. This will need both a UI component and API support.
 
+**Add pagination** GET /api/claims currently returns everything. Add pagination end to end: API support and a UI component. Think through the right approach before building.
+
 **UX audit** Spend time using the application as a user would - submitting claims, navigating, updating statuses. Document what feels missing, broken, or confusing. Propose the top improvements and implement the ones you think are highest value.
-
-## Extra Credit
-
-  - **Procedure restore** - if you implemented voiding, restore is the natural companion. Add a restore action to the UI for voided procedures and wire it to the backend.
-  - **Pagination** - GET /api/claims currently returns everything. Add pagination end to end: API support and a UI component. Think through the right approach before building.
 
 ## A Few Things to Know
 
