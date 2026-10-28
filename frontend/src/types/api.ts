@@ -4,6 +4,7 @@ export interface Procedure {
   code: string;
   description: string;
   amount: number;
+  voided: boolean;
 }
 
 export interface Claim {

@@ -1,9 +1,15 @@
+from typing import Literal
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.common.db import get_session
-from src.common.exceptions import ClaimValidationError, InvalidStatusTransitionError
+from src.common.exceptions import (
+    ClaimNotEditableError,
+    ClaimValidationError,
+    InvalidStatusTransitionError,
+)
 from src.models.claim import ClaimStatus
 from src.services.claim_service import ClaimService
 from src.services.validation_service import ValidationService
@@ -114,3 +120,26 @@ async def delete_claim(
 
     await service.delete_claim(claim)
     return {"deleted": True}
+
+
+class ProcedureVoidRequest(BaseModel):
+    # Restoring goes through POST /api/procedures/{id}/restore, not voided=false.
+    voided: Literal[True]
+
+
+@router.patch("/procedures/{procedure_id}")
+async def void_procedure(
+    procedure_id: int,
+    practice_id: str,
+    data: ProcedureVoidRequest,
+    service: ClaimService = Depends(get_claim_service),
+):
+    procedure = await service.get_procedure(procedure_id, practice_id)
+    if not procedure:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    try:
+        claim = await service.set_procedure_voided(procedure, data.voided)
+    except ClaimNotEditableError as e:
+        raise HTTPException(status_code=409, detail=str(e)) from e
+    return claim.to_dict()

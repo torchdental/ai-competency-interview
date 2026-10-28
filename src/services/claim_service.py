@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.common.exceptions import InvalidStatusTransitionError
+from src.common.exceptions import ClaimNotEditableError, InvalidStatusTransitionError
 from src.models.claim import Claim, ClaimStatus
 from src.models.procedure import Procedure
 
@@ -90,3 +90,28 @@ class ClaimService:
     async def delete_claim(self, claim: Claim) -> None:
         await self.session.delete(claim)
         await self.session.commit()
+
+    async def get_procedure(self, procedure_id: int, practice_id: str) -> Procedure | None:
+        result = await self.session.execute(
+            select(Procedure)
+            .join(Procedure.claim)
+            .where(Procedure.id == procedure_id, Claim.practice_id == practice_id)
+            .options(selectinload(Procedure.claim).selectinload(Claim.procedures))
+        )
+        return result.scalar_one_or_none()
+
+    async def set_procedure_voided(self, procedure: Procedure, voided: bool) -> Claim:
+        claim = procedure.claim
+        if claim.status in (ClaimStatus.ACCEPTED, ClaimStatus.REJECTED):
+            raise ClaimNotEditableError(claim.status.value)
+        procedure.voided = voided
+        # Voided line items aren't billed, so the total only counts active procedures.
+        claim.total_amount = sum((p.amount for p in claim.procedures if not p.voided), 0.0)
+        await self.session.commit()
+
+        result = await self.session.execute(
+            select(Claim)
+            .where(Claim.id == claim.id)
+            .options(selectinload(Claim.procedures))
+        )
+        return result.scalar_one()

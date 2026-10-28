@@ -13,3 +13,9 @@ class ClaimValidationError(Exception):
     def __init__(self, errors: list[str]):
         super().__init__(f"Validation failed: {errors}")
         self.errors = errors
+
+
+class ClaimNotEditableError(Exception):
+    def __init__(self, status: str):
+        super().__init__(f"Cannot modify procedures on a claim with status {status!r}")
+        self.status = status

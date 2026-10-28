@@ -48,25 +48,7 @@ export function ClaimDetail() {
         <p style={{ marginTop: "0.5rem" }}><strong>Total:</strong> ${claim.total_amount.toFixed(2)}</p>
       </div>
 
-      <h2>Procedures</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Code</th>
-            <th>Description</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {claim.procedures.map((proc) => (
-            <tr key={proc.id}>
-              <td>{proc.code}</td>
-              <td>{proc.description}</td>
-              <td>${proc.amount.toFixed(2)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <ProceduresTable claim={claim} onClaimChange={setClaim} />
 
       <div className="actions">
         {claim.status === "pending" && (
@@ -86,5 +68,79 @@ export function ClaimDetail() {
         )}
       </div>
     </div>
+  );
+}
+
+const VOIDED_CELL_STYLE = { color: "#888", textDecoration: "line-through" };
+
+function ProceduresTable({
+  claim,
+  onClaimChange,
+}: {
+  claim: Claim;
+  onClaimChange: (claim: Claim) => void;
+}) {
+  const [error, setError] = useState<string | null>(null);
+  // Accepted and rejected claims are final, so their line items can't change.
+  const canVoid = claim.status !== "accepted" && claim.status !== "rejected";
+
+  const handleVoid = async (procedureId: number) => {
+    setError(null);
+    try {
+      const response = await fetch(`/api/procedures/${procedureId}?practice_id=${PRACTICE_ID}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ voided: true }),
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(typeof data?.detail === "string" ? data.detail : "Failed to void procedure");
+      }
+      onClaimChange(await response.json());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to void procedure");
+    }
+  };
+
+  return (
+    <>
+      <h2>Procedures</h2>
+      {error && <div className="error-banner">{error}</div>}
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {claim.procedures.map((proc) => {
+            const cellStyle = proc.voided ? VOIDED_CELL_STYLE : undefined;
+            return (
+              <tr key={proc.id}>
+                <td style={cellStyle}>{proc.code}</td>
+                <td style={cellStyle}>{proc.description}</td>
+                <td style={cellStyle}>${proc.amount.toFixed(2)}</td>
+                <td>
+                  {proc.voided ? (
+                    <span className="status-badge" style={{ background: "#e5e5e5", color: "#555" }}>
+                      voided
+                    </span>
+                  ) : (
+                    canVoid && (
+                      <button type="button" onClick={() => handleVoid(proc.id)}>
+                        Void
+                      </button>
+                    )
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </>
   );
 }
