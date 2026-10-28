@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { requestJson } from "../apiRequest";
 import type { Claim } from "../types/api";
 
 // Status options available for manual review actions
@@ -14,6 +15,8 @@ const PRACTICE_ID = "practice-1";
 export function ClaimDetail() {
   const { id } = useParams<{ id: string }>();
   const [claim, setClaim] = useState<Claim | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     fetch(`/api/claims/${id}?practice_id=${PRACTICE_ID}`)
@@ -22,15 +25,20 @@ export function ClaimDetail() {
   }, [id]);
 
   const handleStatusUpdate = async (newStatus: ClaimStatus) => {
-    await fetch(`/api/claims/${id}/status?practice_id=${PRACTICE_ID}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    });
-
-    fetch(`/api/claims/${id}?practice_id=${PRACTICE_ID}`)
-      .then((res) => res.json())
-      .then((data) => setClaim(data));
+    setError(null);
+    setIsUpdating(true);
+    try {
+      const updated = await requestJson<Claim>(`/api/claims/${id}/status?practice_id=${PRACTICE_ID}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      setClaim(updated);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   if (!claim) return <div className="page">Loading...</div>;
@@ -38,6 +46,7 @@ export function ClaimDetail() {
   return (
     <div className="page">
       <h1>Claim Detail</h1>
+      {error && <div className="error-banner">{error}</div>}
       <div style={{ background: "#fff", padding: "1.25rem", borderRadius: "6px", marginBottom: "1.5rem" }}>
         <p><strong>Patient:</strong> {claim.patient_name}</p>
         <p style={{ marginTop: "0.5rem" }}><strong>Payer:</strong> {claim.payer_id}</p>
@@ -70,16 +79,16 @@ export function ClaimDetail() {
 
       <div className="actions">
         {claim.status === "pending" && (
-          <button type="button" onClick={() => handleStatusUpdate(ClaimStatus.REJECTED)}>
+          <button type="button" disabled={isUpdating} onClick={() => handleStatusUpdate(ClaimStatus.REJECTED)}>
             Reject Claim
           </button>
         )}
         {claim.status === "validated" && (
           <>
-            <button type="button" onClick={() => handleStatusUpdate(ClaimStatus.ACCEPTED)}>
+            <button type="button" disabled={isUpdating} onClick={() => handleStatusUpdate(ClaimStatus.ACCEPTED)}>
               Accept
             </button>
-            <button type="button" onClick={() => handleStatusUpdate(ClaimStatus.REJECTED)}>
+            <button type="button" disabled={isUpdating} onClick={() => handleStatusUpdate(ClaimStatus.REJECTED)}>
               Reject
             </button>
           </>

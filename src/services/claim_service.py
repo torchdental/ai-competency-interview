@@ -18,13 +18,16 @@ class ClaimService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def get_claims(self, practice_id: str) -> list[Claim]:
-        result = await self.session.execute(
+    async def get_claims(self, practice_id: str, status: ClaimStatus | None = None) -> list[Claim]:
+        query = (
             select(Claim)
             .where(Claim.practice_id == practice_id)
             .options(selectinload(Claim.procedures))
             .order_by(Claim.created_at.desc())
         )
+        if status is not None:
+            query = query.where(Claim.status == status)
+        result = await self.session.execute(query)
         return list(result.scalars().all())
 
     async def get_claim(self, claim_id: int, practice_id: str) -> Claim | None:
@@ -84,8 +87,16 @@ class ClaimService:
             raise InvalidStatusTransitionError(claim.status.value, new_status.value)
         claim.status = new_status
         await self.session.commit()
-        await self.session.refresh(claim)
-        return claim
+
+        # Re-select rather than refresh(): refresh() leaves procedures unloaded, and an
+        # async session can't lazy-load them when the claim is serialized.
+        result = await self.session.execute(
+            select(Claim)
+            .where(Claim.id == claim.id)
+            .options(selectinload(Claim.procedures))
+            .execution_options(populate_existing=True)
+        )
+        return result.scalar_one()
 
     async def delete_claim(self, claim: Claim) -> None:
         await self.session.delete(claim)

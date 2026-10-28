@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { requestJson } from "../apiRequest";
+import type { Claim, ClaimSubmitResponse } from "../types/api";
 
 interface ProcedureInput {
   code: string;
@@ -13,16 +16,16 @@ export function SubmitClaim() {
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [submittedClaim, setSubmittedClaim] = useState<Claim | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSuccessMessage(null);
+    setSubmittedClaim(null);
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/claims", {
+      const data = await requestJson<ClaimSubmitResponse>("/api/claims", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -40,12 +43,7 @@ export function SubmitClaim() {
         }),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail?.message ?? "Failed to submit claim");
-      }
-
-      setSuccessMessage("Claim submitted successfully");
+      setSubmittedClaim(data.claim);
       setPatientName("");
       setPayerId("");
       setProcedures([{ code: "", amount: "" }]);
@@ -72,7 +70,12 @@ export function SubmitClaim() {
     <div className="page">
       <h1>Submit Claim</h1>
       {error && <div className="error-banner">{error}</div>}
-      {successMessage && <div className="success-banner">{successMessage}</div>}
+      {submittedClaim && (
+        <div className="success-banner">
+          Claim for {submittedClaim.patient_name} submitted.{" "}
+          <Link to={`/claims/${submittedClaim.id}`}>View claim</Link>
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="field">
           <label>Patient Name</label>

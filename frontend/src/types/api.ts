@@ -22,3 +22,8 @@ export interface ClaimsListResponse {
   claims: Claim[];
   total: number;
 }
+
+export interface ClaimSubmitResponse {
+  claim: Claim;
+  message: string;
+}

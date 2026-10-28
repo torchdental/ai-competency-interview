@@ -39,6 +39,27 @@ async def test_get_claims_scoped_to_practice(claim_service: ClaimService, payer:
     assert claims[0].patient_name == "Alice"
 
 
+async def test_get_claims_filters_by_status(claim_service: ClaimService, payer: Payer) -> None:
+    pending = await claim_service.create_claim(
+        practice_id="practice-1",
+        patient_name="Alice",
+        payer_id=payer.id,
+        procedures=[],
+        total_amount=0.00,
+    )
+    validated = await claim_service.create_claim(
+        practice_id="practice-1",
+        patient_name="Bob",
+        payer_id=payer.id,
+        procedures=[],
+        total_amount=0.00,
+    )
+    await claim_service.transition_status(validated, ClaimStatus.VALIDATED)
+
+    claims = await claim_service.get_claims("practice-1", status=ClaimStatus.PENDING)
+    assert [c.id for c in claims] == [pending.id]
+
+
 async def test_valid_status_transition(claim_service: ClaimService, payer: Payer) -> None:
     claim = await claim_service.create_claim(
         practice_id="practice-1",
@@ -61,6 +82,24 @@ async def test_invalid_status_transition_raises(claim_service: ClaimService, pay
     )
     with pytest.raises(InvalidStatusTransitionError):
         await claim_service.transition_status(claim, ClaimStatus.ACCEPTED)
+
+
+async def test_transition_status_returns_serializable_claim(
+    claim_service: ClaimService, payer: Payer
+) -> None:
+    claim = await claim_service.create_claim(
+        practice_id="practice-1",
+        patient_name="Jane Doe",
+        payer_id=payer.id,
+        procedures=[{"code": "D0120", "amount": 50.00}],
+        total_amount=50.00,
+    )
+    updated = await claim_service.transition_status(claim, ClaimStatus.VALIDATED)
+
+    data = updated.to_dict()
+    assert data["status"] == "validated"
+    assert len(data["procedures"]) == 1
+    assert data["updated_at"] is not None
 
 
 async def test_get_claim_returns_none_for_wrong_practice(

@@ -16,6 +16,9 @@ class ValidationService:
     def validate_claim(self, procedures: list[dict]) -> list[str]:
         errors = []
         for proc in procedures:
+            if proc["code"] not in self._codes:
+                errors.append(f"Procedure {proc['code']!r}: unrecognized procedure code")
+                continue
             code_info = self.validate_procedure_code(proc["code"])
             if proc["amount"] > code_info["max_amount"]:
                 errors.append(
